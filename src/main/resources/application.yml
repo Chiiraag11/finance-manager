@@ -4,6 +4,7 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password: password
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -12,19 +13,22 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   h2:
     console:
       enabled: true
       path: /h2-console
       settings:
         web-allow-others: false
+
   jackson:
     serialization:
       write-dates-as-timestamps: false
     date-format: yyyy-MM-dd
 
 server:
-   port: ${PORT:8080}
+  port: ${PORT:8080}
+
   servlet:
     session:
       cookie:
@@ -39,6 +43,7 @@ management:
     web:
       exposure:
         include: health,info
+
   endpoint:
     health:
       show-details: never
@@ -54,11 +59,14 @@ spring:
   config:
     activate:
       on-profile: production
+
   datasource:
     url: jdbc:h2:file:/data/financedb;DB_CLOSE_DELAY=-1
+
   jpa:
     hibernate:
       ddl-auto: update
+
 server:
   servlet:
     session:
