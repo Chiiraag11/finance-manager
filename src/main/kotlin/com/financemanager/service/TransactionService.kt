@@ -17,7 +17,11 @@ class TransactionService(
 ) {
 
     @Transactional
-    fun createTransaction(user: User, request: CreateTransactionRequest): TransactionResponse {
+    fun createTransaction(
+        user: User,
+        request: CreateTransactionRequest
+    ): TransactionResponse {
+
         validateDate(request.date)
 
         val category = categoryService.findCategoryByNameForUser(
@@ -33,18 +37,25 @@ class TransactionService(
             user = user
         )
 
-        return transactionRepository.save(transaction).toResponse()
+        return transactionRepository
+            .save(transaction)
+            .toResponse()
     }
 
     @Transactional(readOnly = true)
-    fun getTransactions(user: User, filters: TransactionFilterRequest): List<TransactionResponse> {
+    fun getTransactions(
+        user: User,
+        filters: TransactionFilterRequest
+    ): List<TransactionResponse> {
 
         if (
             filters.startDate != null &&
             filters.endDate != null &&
             filters.startDate.isAfter(filters.endDate)
         ) {
-            throw BadRequestException("startDate must not be after endDate")
+            throw BadRequestException(
+                "startDate must not be after endDate"
+            )
         }
 
         return transactionRepository.findByUserWithFilters(
@@ -65,19 +76,31 @@ class TransactionService(
         val transaction = transactionRepository
             .findByIdAndUserAndDeletedFalse(id, user)
             .orElseThrow {
-                ResourceNotFoundException("Transaction with id $id not found")
+                ResourceNotFoundException(
+                    "Transaction with id $id not found"
+                )
             }
 
-        val category = categoryService.findCategoryByNameForUser(
-            request.category,
-            user
-        )
+        request.amount?.let {
+            transaction.amount = it
+        }
 
-        transaction.amount = request.amount
-        transaction.category = category
-        transaction.description = request.description?.trim()
+        request.category?.let {
+            transaction.category =
+                categoryService.findCategoryByNameForUser(
+                    it,
+                    user
+                )
+        }
 
-        return transactionRepository.save(transaction).toResponse()
+        if (request.description != null) {
+            transaction.description =
+                request.description.trim()
+        }
+
+        return transactionRepository
+            .save(transaction)
+            .toResponse()
     }
 
     @Transactional
@@ -86,7 +109,9 @@ class TransactionService(
         val transaction = transactionRepository
             .findByIdAndUserAndDeletedFalse(id, user)
             .orElseThrow {
-                ResourceNotFoundException("Transaction with id $id not found")
+                ResourceNotFoundException(
+                    "Transaction with id $id not found"
+                )
             }
 
         transaction.deleted = true
@@ -110,6 +135,7 @@ class TransactionService(
         categoryId = category.id,
         categoryName = category.name,
         categoryType = category.type,
+        type = category.type,
         description = description
     )
 }

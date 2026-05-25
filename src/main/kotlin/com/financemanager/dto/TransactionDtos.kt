@@ -24,13 +24,11 @@ data class CreateTransactionRequest(
 
 data class UpdateTransactionRequest(
 
-    @field:NotNull(message = "Amount is required")
     @field:DecimalMin(value = "0.01", message = "Amount must be greater than 0")
     @field:Digits(integer = 17, fraction = 2, message = "Amount must have at most 2 decimal places")
-    val amount: BigDecimal,
+    val amount: BigDecimal? = null,
 
-    @field:NotBlank(message = "Category is required")
-    val category: String,
+    val category: String? = null,
 
     @field:Size(max = 500, message = "Description must not exceed 500 characters")
     val description: String? = null
@@ -43,6 +41,7 @@ data class TransactionResponse(
     val categoryId: Long,
     val categoryName: String,
     val categoryType: CategoryType,
+    val type: CategoryType,
     val description: String?
 )
 
