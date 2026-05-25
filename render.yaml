@@ -1,7 +1,7 @@
 services:
   - type: web
     name: finance-manager-api
-    env: java
+    runtime: java
     plan: free
 
     buildCommand: mvn clean install
