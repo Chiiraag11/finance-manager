@@ -24,7 +24,7 @@ spring:
     date-format: yyyy-MM-dd
 
 server:
-  port: 8080
+   port: ${PORT:8080}
   servlet:
     session:
       cookie:
