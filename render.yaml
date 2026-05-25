@@ -1,33 +1,22 @@
 services:
   - type: web
     name: finance-manager-api
-    runtime: docker
-    dockerfilePath: ./Dockerfile
+    env: java
     plan: free
 
-    # Environment variables
+    buildCommand: mvn clean install
+    startCommand: java -jar target/*.jar
+
     envVars:
+      - key: JAVA_VERSION
+        value: 17
+
       - key: SPRING_PROFILES_ACTIVE
         value: production
+
       - key: SERVER_PORT
         value: 8080
-      # Override session cookie to be secure on HTTPS
-      - key: SERVER_SERVLET_SESSION_COOKIE_SECURE
-        value: "true"
-      - key: SERVER_SERVLET_SESSION_COOKIE_SAME_SITE
-        value: strict
-      # JVM memory tuning for free tier (512 MB)
-      - key: JAVA_TOOL_OPTIONS
-        value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0"
 
-    # Health check
     healthCheckPath: /actuator/health
 
-    # Auto-deploy on push
     autoDeploy: true
-
-    # Disk for H2 file-based persistence on production profile
-    disk:
-      name: finance-db-data
-      mountPath: /data
-      sizeGB: 1
