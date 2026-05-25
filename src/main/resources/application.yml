@@ -61,7 +61,7 @@ spring:
       on-profile: production
 
   datasource:
-    url: jdbc:h2:file:/data/financedb;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:prodDb
 
   jpa:
     hibernate:
