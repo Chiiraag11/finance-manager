@@ -19,7 +19,11 @@ class TransactionService(
     @Transactional
     fun createTransaction(user: User, request: CreateTransactionRequest): TransactionResponse {
         validateDate(request.date)
-        val category = categoryService.findCategoryByIdForUser(request.categoryId, user)
+
+        val category = categoryService.findCategoryByNameForUser(
+            request.category,
+            user
+        )
 
         val transaction = Transaction(
             amount = request.amount,
@@ -34,7 +38,12 @@ class TransactionService(
 
     @Transactional(readOnly = true)
     fun getTransactions(user: User, filters: TransactionFilterRequest): List<TransactionResponse> {
-        if (filters.startDate != null && filters.endDate != null && filters.startDate.isAfter(filters.endDate)) {
+
+        if (
+            filters.startDate != null &&
+            filters.endDate != null &&
+            filters.startDate.isAfter(filters.endDate)
+        ) {
             throw BadRequestException("startDate must not be after endDate")
         }
 
@@ -47,11 +56,22 @@ class TransactionService(
     }
 
     @Transactional
-    fun updateTransaction(user: User, id: Long, request: UpdateTransactionRequest): TransactionResponse {
-        val transaction = transactionRepository.findByIdAndUserAndDeletedFalse(id, user)
-            .orElseThrow { ResourceNotFoundException("Transaction with id $id not found") }
+    fun updateTransaction(
+        user: User,
+        id: Long,
+        request: UpdateTransactionRequest
+    ): TransactionResponse {
 
-        val category = categoryService.findCategoryByIdForUser(request.categoryId, user)
+        val transaction = transactionRepository
+            .findByIdAndUserAndDeletedFalse(id, user)
+            .orElseThrow {
+                ResourceNotFoundException("Transaction with id $id not found")
+            }
+
+        val category = categoryService.findCategoryByNameForUser(
+            request.category,
+            user
+        )
 
         transaction.amount = request.amount
         transaction.category = category
@@ -62,16 +82,24 @@ class TransactionService(
 
     @Transactional
     fun deleteTransaction(user: User, id: Long) {
-        val transaction = transactionRepository.findByIdAndUserAndDeletedFalse(id, user)
-            .orElseThrow { ResourceNotFoundException("Transaction with id $id not found") }
+
+        val transaction = transactionRepository
+            .findByIdAndUserAndDeletedFalse(id, user)
+            .orElseThrow {
+                ResourceNotFoundException("Transaction with id $id not found")
+            }
 
         transaction.deleted = true
+
         transactionRepository.save(transaction)
     }
 
     private fun validateDate(date: LocalDate) {
+
         if (date.isAfter(LocalDate.now())) {
-            throw BadRequestException("Transaction date cannot be a future date")
+            throw BadRequestException(
+                "Transaction date cannot be a future date"
+            )
         }
     }
 
